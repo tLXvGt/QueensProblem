@@ -6,8 +6,8 @@ namespace QueensProblem.Models
 {
     public class Chessboard
     {
-        public List<Queen> Queens;
-        public int BoardSize { get; set; }
+        public List<Queen> Queens { get; private set; }
+        public int BoardSize { get; private set; }
 
         public Chessboard(List<Queen> list)
         {
@@ -46,13 +46,19 @@ namespace QueensProblem.Models
             sb.Append("   ");
             for (int i = 1; i < BoardSize + 1; i++)
             {
-                sb.Append("-" + i);
+                sb.Append(" " + i);
             }
-            sb.AppendLine();
+            sb.AppendLine("");
+            sb.Append("  ┌");
+            for (int i = 1; i < BoardSize + 1; i++)
+            {
+                sb.Append("──");
+            }
+            sb.AppendLine("─┐");
 
             for (int i = 1; i < BoardSize + 1; i++)
             {
-                sb.Append((i < 10 ? $"0{i}" : $"{i}") + "|");
+                sb.Append((i < 10 ? $" {i}" : $"{i}") + "│");
                 for (int j = 1; j < BoardSize + 1; j++)
                 {
                     if (HasQueenOn(i, j))
@@ -64,32 +70,56 @@ namespace QueensProblem.Models
                         sb.Append(" ·");
                     }
                 }
-                sb.AppendLine("|");
+                sb.AppendLine(" │");
             }
             
-            sb.Append("   ");
+            sb.Append("  └");
             for (int i = 1; i < BoardSize + 1; i++)
             {
-                sb.Append("--");
+                sb.Append("──");
             }
+            sb.Append("─┘");
 
             return sb.ToString();
         }
+
+        public List<Chessboard> GetNeighbourhoodOf()
+        {
+            return Queens.SelectMany(queen => GetNeighbourhoodOf(queen)).ToList();
+        }
+
+        public List<Chessboard> GetNeighbourhoodOf(Queen queen)
+        {
+            var neighbourhood = new List<Chessboard>();
+
+            neighbourhood.AddRange(queen
+                .Position
+                .GetAdjacentFields(BoardSize)
+                .Where(coords => !HasQueenOn(coords))
+                .Select(coords =>
+                {
+                    var newQueensList = Queens.Where(q => q != queen).ToList();
+                    newQueensList.Add(new Queen(coords.X, coords.Y));
+                    return new Chessboard(newQueensList);
+                }));
+
+            return neighbourhood;
+        }
     
-        private static List<Coordinates> GetConflictFields(int x, int y)
+        private List<Coordinates> GetConflictFields(int x, int y)
         {
             var coords = new List<Coordinates>();
 
             int tempX = x;
             int tempY = y;
-            while (tempX < 8 && tempY < 8)
+            while (tempX < BoardSize && tempY < BoardSize)
             {
                 coords.Add(new Coordinates(++tempX, ++tempY));
             }
 
             tempX = x;
             tempY = y;
-            while (tempX < 8 && tempY > 1)
+            while (tempX < BoardSize && tempY > 1)
             {
                 coords.Add(new Coordinates(++tempX, --tempY));
             }
@@ -103,12 +133,12 @@ namespace QueensProblem.Models
 
             tempX = x;
             tempY = y;
-            while (tempX > 1 && tempY < 8)
+            while (tempX > 1 && tempY < BoardSize)
             {
                 coords.Add(new Coordinates(--tempX, ++tempY));
             }
 
-            for (int i = 1; i < 9; i++)
+            for (int i = 1; i < BoardSize + 1; i++)
             {
                 coords.Add(new Coordinates(x, i));
                 coords.Add(new Coordinates(i, y));

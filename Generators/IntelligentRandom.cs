@@ -1,15 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Medallion;
 using QueensProblem.Models;
 
-namespace QueensProblem
+namespace QueensProblem.Generators
 {
-    public class Generators
+    public class IntelligentRandom : IChessboardGenerator
     {
-        public static Chessboard IntelligentRandom(int range)
+        public Chessboard Generate(int range)
         {
             var queens = new List<Queen>();
             var numbers = Enumerable.Range(1, range).ToArray();

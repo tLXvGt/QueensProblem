@@ -2,7 +2,7 @@ namespace QueensProblem.Models
 {
     public class Fitness
     {
-        public int Value { get; set; }
+        public int Value { get; private set; }
 
         public Fitness(int fitness)
         {

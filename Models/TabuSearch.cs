@@ -1,33 +1,37 @@
 using System.Collections.Generic;
 using System.Linq;
+using QueensProblem.Calculators;
+using QueensProblem.Generators;
 
 namespace QueensProblem.Models
 {
     public class TabuSearch
     {
-        private Fitness BestPossibleFitness => FitnessCalculator.BestFitness;
-
         public Chessboard FinalChessboard { get; private set; }
         public string Result { get; private set; }
 
-        public void Simulate(int maxTabuListCount, int boardSize)
+        public void Simulate(int maxTabuListCount, int boardSize,
+            IChessboardGenerator generator,
+            IFitnessCalculator calculator)
         {
-            Chessboard currentCentralPoint = Generators.IntelligentRandom(boardSize);
+            Fitness BestPossibleFitness = calculator.BestFitness;
+            IntelligentRandom random = new IntelligentRandom();
+            Chessboard currentCentralPoint = random.Generate(boardSize);
             Chessboard currentBestSolution = currentCentralPoint;
             HashSet<Chessboard> tabuList = new HashSet<Chessboard>();
-            Fitness currentBestSolutionFitness = FitnessCalculator.WorstFitness;
+            Fitness currentBestSolutionFitness = calculator.WorstFitness;
 
             while (tabuList.Count < maxTabuListCount
                 && currentBestSolutionFitness.IsWorseThan(BestPossibleFitness))
             {
-                Chessboard bestCandidate = Tabu
-                    .GetNeighbourhoodOf(currentCentralPoint)?
+                Chessboard bestCandidate = currentCentralPoint?
+                    .GetNeighbourhoodOf()
                     .Except(tabuList)
-                    .OrderBy(ch => FitnessCalculator.Calculate(ch).Value)
+                    .OrderBy(ch => calculator.CalculateFitness(ch).Value)
                     .FirstOrDefault();
 
-                var bestCandidateFitness = FitnessCalculator.Calculate(bestCandidate);
-                currentBestSolutionFitness = FitnessCalculator.Calculate(currentBestSolution);
+                Fitness bestCandidateFitness = calculator.CalculateFitness(bestCandidate);
+                currentBestSolutionFitness = calculator.CalculateFitness(currentBestSolution);
 
                 currentCentralPoint = bestCandidate;
                 if (bestCandidateFitness.IsBetterThan(currentBestSolutionFitness))
@@ -42,7 +46,7 @@ namespace QueensProblem.Models
             Result = $@"
 -- Tabu Search Result --
 Tabu List Count: {tabuList.Count}
-Fitness: {FitnessCalculator.Calculate(FinalChessboard).Value}
+Fitness: {calculator.CalculateFitness(FinalChessboard).Value}
 {FinalChessboard.ToString()}
             ";
         }

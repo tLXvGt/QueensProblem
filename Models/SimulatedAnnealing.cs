@@ -1,24 +1,28 @@
+using QueensProblem.Calculators;
+using QueensProblem.Generators;
+
 namespace QueensProblem.Models
 {
     public class SimulatedAnnealing
     {
-        private Fitness BestPossibleFitness => FitnessCalculator.BestFitness;
-
         public Chessboard FinalChessboard { get; private set; }
-        public string Result { get; set; }
+        public string Result { get; private set; }
 
-        public void Simulate(int startTemperature, int boardSize)
+        public void Simulate(int startTemperature, int boardSize,
+            IChessboardGenerator generator,
+            IFitnessCalculator calculator)
         {
+            Fitness BestPossibleFitness = calculator.BestFitness;
             int tenPercent = startTemperature / 10;
-            Chessboard currentBestChessboard = Generators.IntelligentRandom(boardSize);
+            Chessboard currentBestChessboard = generator.Generate(boardSize);
             Temperature currentTemperature = new Temperature(startTemperature);
-            Fitness currentBestFitness = FitnessCalculator.WorstFitness;
+            Fitness currentBestFitness = calculator.WorstFitness;
 
             while (currentTemperature.IsNotZero
                 && currentBestFitness.IsWorseThan(BestPossibleFitness))
             {
-                Chessboard chessboard = Generators.IntelligentRandom(boardSize);
-                Fitness currentFitness = FitnessCalculator.Calculate(chessboard);
+                Chessboard chessboard = generator.Generate(boardSize);
+                Fitness currentFitness = calculator.CalculateFitness(chessboard);
 
                 if (currentFitness.IsBetterThan(currentBestFitness))
                 {
@@ -36,7 +40,7 @@ namespace QueensProblem.Models
             Result = $@"
 -- Simulated Annealing Result --
 Current Temperature: {currentTemperature.Value}
-Fitness: {FitnessCalculator.Calculate(FinalChessboard).Value}
+Fitness: {calculator.CalculateFitness(FinalChessboard).Value}
 {FinalChessboard.ToString()}
             ";
         }

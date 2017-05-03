@@ -4,8 +4,8 @@ namespace QueensProblem.Models
 {
     public class Coordinates
     {
-        public int X { get; set; }
-        public int Y { get; set; }
+        public int X { get; private set; }
+        public int Y { get; private set; }
 
         public Coordinates(int x, int y)
         {
@@ -15,21 +15,21 @@ namespace QueensProblem.Models
 
         public List<Coordinates> GetAdjacentFields(int boardSize)
         {
-            var list = new List<Coordinates>();
+            var adjFields = new List<Coordinates>();
 
-            if (X != 1) list.Add(new Coordinates(X - 1, Y));
-            if (Y != 1) list.Add(new Coordinates(X, Y - 1));
+            if (X != 1) adjFields.Add(new Coordinates(X - 1, Y));
+            if (Y != 1) adjFields.Add(new Coordinates(X, Y - 1));
 
-            if (X != boardSize) list.Add(new Coordinates(X + 1, Y));
-            if (Y != boardSize) list.Add(new Coordinates(X, Y + 1));
+            if (X != boardSize) adjFields.Add(new Coordinates(X + 1, Y));
+            if (Y != boardSize) adjFields.Add(new Coordinates(X, Y + 1));
 
-            if (X != boardSize && Y != 1) list.Add(new Coordinates(X + 1, Y - 1));
-            if (X != 1 && Y != boardSize) list.Add(new Coordinates(X - 1, Y + 1));
+            if (X != boardSize && Y != 1) adjFields.Add(new Coordinates(X + 1, Y - 1));
+            if (X != 1 && Y != boardSize) adjFields.Add(new Coordinates(X - 1, Y + 1));
 
-            if (X != 1 && Y != 1) list.Add(new Coordinates(X - 1, Y - 1));
-            if (X != boardSize && Y != boardSize) list.Add(new Coordinates(X + 1, Y + 1));
+            if (X != 1 && Y != 1) adjFields.Add(new Coordinates(X - 1, Y - 1));
+            if (X != boardSize && Y != boardSize) adjFields.Add(new Coordinates(X + 1, Y + 1));
 
-            return list;
+            return adjFields;
         }
 
         public override string ToString()
